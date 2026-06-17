@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Propiedades — BD Estudio Inmobiliario</title>
+<meta name="description" content="Propiedades en venta y alquiler en Tandil. Casas, departamentos, lotes y campos. BD Estudio Inmobiliario.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root { --green: #1B3A2D; --cream: #F7F4EE; --border: #E5DDD0; --text: #1A1815; --gray: #6E6560; }
+body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); }
+
+/* NAVBAR */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; background: var(--green); padding: 0 40px; height: 70px; display: flex; align-items: center; justify-content: space-between; transition: box-shadow .3s; }
+nav.scrolled { box-shadow: 0 2px 20px rgba(0,0,0,.15); }
+.nav-logo { font-family: 'Cormorant Garamond', serif; font-size: 20px; color: white; text-decoration: none; font-weight: 400; letter-spacing: 1px; }
+.nav-links { display: flex; gap: 32px; list-style: none; }
+.nav-links a { color: rgba(255,255,255,.75); text-decoration: none; font-size: 11px; letter-spacing: 2.5px; text-transform: uppercase; transition: color .2s; }
+.nav-links a:hover { color: white; }
+
+/* HEADER */
+.page-header { background: var(--green); padding: 110px 48px 52px; }
+.page-header h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(36px,5vw,60px); font-weight: 300; color: white; line-height: 1.1; margin-bottom: 10px; }
+.page-header p { font-size: 14px; color: rgba(255,255,255,.6); font-family: 'DM Sans', sans-serif; }
+.eyebrow { font-size: 9.5px; letter-spacing: 4px; text-transform: uppercase; color: #C8B89A; display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-family: 'DM Sans', sans-serif; }
+.eyebrow span { display: block; width: 22px; height: 1px; background: #C8B89A; }
+
+/* FILTERS */
+.filters { background: white; border-bottom: 1px solid var(--border); padding: 16px 48px; position: sticky; top: 70px; z-index: 90; }
+.filters-inner { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.filter-select { padding: 10px 36px 10px 14px; border: 1px solid var(--border); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text); background: var(--cream); appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236E6560' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; cursor: pointer; outline: none; }
+.filter-clear { padding: 10px 16px; border: 1px solid var(--border); border-radius: 2px; background: transparent; font-size: 11px; color: var(--gray); cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.result-count { margin-left: auto; font-size: 12px; color: var(--gray); white-space: nowrap; }
+
+/* GRID */
+.grid-section { padding: 48px; }
+.grid-section .inner { max-width: 1100px; margin: 0 auto; }
+.props-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+
+/* CARD */
+.prop-card { background: white; border-radius: 3px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,.06); cursor: pointer; transition: transform .3s, box-shadow .3s; }
+.prop-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(27,58,45,.12); }
+.card-img { position: relative; height: 230px; overflow: hidden; }
+.card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+.prop-card:hover .card-img img { transform: scale(1.04); }
+.card-badge { position: absolute; top: 14px; left: 14px; background: var(--green); color: white; font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; padding: 5px 10px; border-radius: 1px; }
+.card-badge-extra { position: absolute; top: 14px; right: 14px; background: rgba(37,211,102,.9); color: white; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 10px; border-radius: 1px; }
+.card-price { position: absolute; bottom: 14px; right: 14px; background: rgba(10,25,18,.88); color: white; font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 500; padding: 6px 14px; border-radius: 2px; }
+.card-body { padding: 22px; }
+.card-title { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 400; color: var(--text); margin-bottom: 4px; }
+.card-loc { font-size: 12px; color: var(--gray); margin-bottom: 12px; }
+.card-stats { display: flex; gap: 14px; flex-wrap: wrap; border-top: 1px solid var(--border); padding-top: 14px; font-size: 12px; color: var(--gray); margin-bottom: 14px; }
+.card-btn { display: flex; align-items: center; justify-content: center; background: var(--green); color: white; padding: 12px; border-radius: 2px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: background .2s; }
+.card-btn:hover { background: #24503D; }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.6); z-index: 200; display: none; align-items: flex-start; justify-content: center; overflow-y: auto; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: white; border-radius: 4px; max-width: 900px; width: 100%; margin: auto; overflow: hidden; }
+.modal-close { position: fixed; top: 28px; right: 28px; background: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; z-index: 201; box-shadow: 0 2px 12px rgba(0,0,0,.15); display: flex; align-items: center; justify-content: center; }
+
+/* Modal gallery */
+.modal-gallery { position: relative; height: 380px; background: #1B3A2D; overflow: hidden; }
+.modal-gallery img { width: 100%; height: 100%; object-fit: cover; transition: opacity .3s; }
+.gallery-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,.15); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,.3); color: white; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; font-size: 20px; display: flex; align-items: center; justify-content: center; }
+.gallery-btn.prev { left: 16px; }
+.gallery-btn.next { right: 16px; }
+.gallery-counter { position: absolute; bottom: 16px; right: 16px; background: rgba(0,0,0,.5); color: white; font-size: 11px; padding: 4px 10px; border-radius: 2px; }
+.modal-thumbs { display: flex; gap: 6px; padding: 10px 24px; background: #f0ede7; overflow-x: auto; }
+.modal-thumb { width: 60px; height: 44px; border-radius: 2px; overflow: hidden; cursor: pointer; flex-shrink: 0; border: 2px solid transparent; transition: border-color .2s; }
+.modal-thumb.active { border-color: var(--green); }
+.modal-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* Modal content */
+.modal-content { display: grid; grid-template-columns: 1fr 280px; gap: 0; }
+.modal-info { padding: 32px; }
+.modal-info h2 { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; margin-bottom: 6px; }
+.modal-info .loc { font-size: 13px; color: var(--gray); margin-bottom: 24px; }
+.modal-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+.modal-stat { padding: 14px; background: var(--cream); border-radius: 2px; text-align: center; }
+.modal-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; color: var(--text); }
+.modal-stat-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gray); margin-top: 3px; }
+.modal-desc { font-size: 14px; color: var(--gray); line-height: 1.8; margin-bottom: 20px; }
+.modal-extras { display: flex; flex-wrap: wrap; gap: 8px; }
+.modal-extra { font-size: 12px; color: var(--green); background: #E8F0EB; padding: 4px 10px; border-radius: 1px; }
+.modal-panel { background: var(--green); padding: 28px; display: flex; flex-direction: column; }
+.modal-panel .price-label { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(200,184,154,.8); margin-bottom: 6px; }
+.modal-panel .price { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: white; margin-bottom: 24px; }
+.modal-wa { display: flex; align-items: center; justify-content: center; gap: 8px; background: #25D366; color: white; padding: 14px; border-radius: 2px; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; margin-bottom: 12px; }
+.modal-details { margin-top: 20px; border-top: 1px solid rgba(255,255,255,.1); padding-top: 20px; }
+.modal-detail-row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px; }
+.modal-detail-row span:first-child { color: rgba(255,255,255,.5); }
+.modal-detail-row span:last-child { color: white; font-weight: 500; }
+
+/* Empty / Loading */
+.empty { text-align: center; padding: 80px 20px; }
+.empty h3 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; color: var(--text); margin-bottom: 8px; }
+.empty p { font-size: 14px; color: var(--gray); }
+.loading-spinner { text-align: center; padding: 60px; color: var(--gray); font-size: 14px; }
+
+/* WA Float */
+.wa-float { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: #25D366; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 16px rgba(37,211,102,.4); z-index: 99; text-decoration: none; transition: transform .2s; }
+.wa-float:hover { transform: scale(1.1); }
+
+/* Footer */
+footer { background: #0F2219; padding: 40px 48px; text-align: center; color: rgba(255,255,255,.4); font-size: 12px; font-family: 'DM Sans', sans-serif; }
+
+@media (max-width: 768px) {
+  .props-grid { grid-template-columns: 1fr; }
+  .filters-inner { gap: 8px; }
+  .modal-content { grid-template-columns: 1fr; }
+  .modal-panel { padding: 24px; }
+  .page-header { padding: 100px 24px 40px; }
+  .grid-section { padding: 28px 24px; }
+  .filters { padding: 12px 24px; }
+  nav { padding: 0 24px; }
+}
+</style>
+</head>
+<body>
+
+<nav id="navbar">
+  <a href="index.html" class="nav-logo">BD Estudio Inmobiliario</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="propiedades-live.html">Propiedades</a></li>
+    <li><a href="lotes.html">Lotes</a></li>
+    <li><a href="campos.html">Campos</a></li>
+    <li><a href="tasaciones.html">Tasaciones</a></li>
+    <li><a href="nosotros.html">Nosotros</a></li>
+    <li><a href="contacto.html">Contacto</a></li>
+  </ul>
+</nav>
+
+<div class="page-header">
+  <div class="eyebrow"><span></span>BD Estudio Inmobiliario</div>
+  <h1>Nuestras <em style="font-style:italic;color:#C8B89A;">propiedades</em></h1>
+  <p>Tandil y la región serrana · Buenos Aires</p>
+</div>
+
+<div class="filters">
+  <div class="filters-inner">
+    <span style="font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gray);padding-right:12px;border-right:1px solid var(--border);">Filtrar</span>
+    <select class="filter-select" id="f-op" onchange="filtrar()">
+      <option value="">Operación</option>
+      <option value="venta">Venta</option>
+      <option value="alquiler">Alquiler</option>
+    </select>
+    <select class="filter-select" id="f-tipo" onchange="filtrar()">
+      <option value="">Tipo</option>
+      <option value="casa">Casa</option>
+      <option value="departamento">Departamento</option>
+      <option value="lote">Lote</option>
+      <option value="campo">Campo</option>
+      <option value="galpon">Galpón</option>
+    </select>
+    <select class="filter-select" id="f-zona" onchange="filtrar()">
+      <option value="">Zona</option>
+    </select>
+    <button class="filter-clear" onclick="clearFilters()">Limpiar</button>
+    <span class="result-count" id="result-count"></span>
+  </div>
+</div>
+
+<section class="grid-section">
+  <div class="inner">
+    <div id="props-grid" class="props-grid">
+      <div class="loading-spinner">Cargando propiedades...</div>
+    </div>
+  </div>
+</section>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <button class="modal-close" onclick="closeModal()">✕</button>
+  <div class="modal">
+    <div class="modal-gallery" id="modal-gallery">
+      <img id="modal-main-img" src="" alt="">
+      <button class="gallery-btn prev" onclick="prevImg()">‹</button>
+      <button class="gallery-btn next" onclick="nextImg()">›</button>
+      <span class="gallery-counter" id="gallery-counter"></span>
+    </div>
+    <div class="modal-thumbs" id="modal-thumbs"></div>
+    <div class="modal-content">
+      <div class="modal-info">
+        <h2 id="modal-title"></h2>
+        <div class="loc" id="modal-loc"></div>
+        <div class="modal-stats" id="modal-stats"></div>
+        <p class="modal-desc" id="modal-desc"></p>
+        <div class="modal-extras" id="modal-extras"></div>
+      </div>
+      <div class="modal-panel">
+        <div class="price-label">Precio</div>
+        <div class="price" id="modal-price"></div>
+        <a href="#" class="modal-wa" id="modal-wa" target="_blank">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          Consultar por WhatsApp
+        </a>
+        <div class="modal-details" id="modal-details"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025 BD Estudio Inmobiliario · Pozos 515, Tandil · +54 9 2494 528888</footer>
+
+<a href="https://wa.me/5492494528888" class="wa-float" target="_blank">
+  <svg viewBox="0 0 24 24" fill="white" width="26" height="26"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<script>
+const SUPABASE_URL = 'https://fijwsrillwlfxulskngt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpandzcmlsbHdsZnh1bHNrbmd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTA3MjAsImV4cCI6MjA5NzI2NjcyMH0.g2M9H58NitwtYK8Cme_1pgFVbx3EZSLmtQAVvXk2EY8';
+
+let allProps = [];
+let currentImgs = [];
+let currentImgIdx = 0;
+
+// Navbar scroll
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+}, {passive:true});
+
+// Load from Supabase
+async function loadProps() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/propiedades?activo=eq.true&order=created_at.desc&select=*`, {
+      headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
+    });
+    allProps = await res.json();
+    buildZonaFilter();
+    filtrar();
+  } catch(e) {
+    document.getElementById('props-grid').innerHTML = `<div class="loading-spinner">Error al cargar propiedades</div>`;
+  }
+}
+
+function buildZonaFilter() {
+  const zonas = [...new Set(allProps.map(p => p.zona).filter(Boolean))];
+  const sel = document.getElementById('f-zona');
+  zonas.forEach(z => {
+    const opt = document.createElement('option');
+    opt.value = z; opt.textContent = z;
+    sel.appendChild(opt);
+  });
+}
+
+function filtrar() {
+  const op = document.getElementById('f-op').value;
+  const tipo = document.getElementById('f-tipo').value;
+  const zona = document.getElementById('f-zona').value;
+  
+  let result = allProps.filter(p => {
+    if (op && p.operacion !== op) return false;
+    if (tipo && p.tipo !== tipo) return false;
+    if (zona && p.zona !== zona) return false;
+    return true;
+  });
+  
+  document.getElementById('result-count').textContent = `${result.length} propiedad${result.length !== 1 ? 'es' : ''} encontrada${result.length !== 1 ? 's' : ''}`;
+  renderCards(result);
+}
+
+function clearFilters() {
+  ['f-op','f-tipo','f-zona'].forEach(id => document.getElementById(id).value = '');
+  filtrar();
+}
+
+function renderCards(props) {
+  const grid = document.getElementById('props-grid');
+  if (!props.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><h3>No hay propiedades con esos filtros</h3><p>Probá con otros criterios de búsqueda</p></div>`;
+    return;
+  }
+  grid.innerHTML = props.map(p => `
+    <div class="prop-card" onclick="openModal(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+      <div class="card-img">
+        ${p.fotos && p.fotos.length ? `<img src="${p.fotos[0]}" alt="${p.titulo}" loading="lazy">` : '<div style="height:100%;background:#E5DDD0;display:flex;align-items:center;justify-content:center;color:#6E6560;font-size:12px;letter-spacing:1px;text-transform:uppercase;">Sin foto</div>'}
+        <span class="card-badge">${p.operacion || 'venta'}</span>
+        ${p.extras && p.extras.includes('Financiación') ? '<span class="card-badge-extra">Financiación</span>' : ''}
+        <span class="card-price">${p.precio || 'Consultar'}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-title">${p.titulo}</div>
+        <div class="card-loc">📍 ${p.direccion || p.zona || 'Tandil'}</div>
+        <div class="card-stats">
+          ${p.metros ? `<span>📐 ${p.metros} m²</span>` : ''}
+          ${p.ambientes ? `<span>🏠 ${p.ambientes} amb.</span>` : ''}
+          ${p.dormitorios ? `<span>🛏 ${p.dormitorios} dorm.</span>` : ''}
+          ${p.banios ? `<span>🚿 ${p.banios} baños</span>` : ''}
+        </div>
+        <div class="card-btn">Ver ficha completa →</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// MODAL
+function openModal(p) {
+  currentImgs = p.fotos || [];
+  currentImgIdx = 0;
+  
+  document.getElementById('modal-title').textContent = p.titulo;
+  document.getElementById('modal-loc').textContent = '📍 ' + (p.direccion || p.zona || 'Tandil');
+  document.getElementById('modal-price').textContent = p.precio || 'Consultar';
+  document.getElementById('modal-desc').textContent = p.descripcion || '';
+  
+  // Stats
+  const stats = [];
+  if (p.metros) stats.push({n: p.metros, l: 'm²'});
+  if (p.ambientes) stats.push({n: p.ambientes, l: 'Amb.'});
+  if (p.dormitorios) stats.push({n: p.dormitorios, l: 'Dorm.'});
+  if (p.banios) stats.push({n: p.banios, l: 'Baños'});
+  document.getElementById('modal-stats').innerHTML = stats.map(s => `
+    <div class="modal-stat"><div class="modal-stat-num">${s.n}</div><div class="modal-stat-label">${s.l}</div></div>
+  `).join('');
+  
+  // Extras
+  document.getElementById('modal-extras').innerHTML = (p.extras || []).map(e => `<span class="modal-extra">✓ ${e}</span>`).join('');
+  
+  // Details
+  document.getElementById('modal-details').innerHTML = `
+    ${p.tipo ? `<div class="modal-detail-row"><span>Tipo</span><span>${p.tipo}</span></div>` : ''}
+    ${p.operacion ? `<div class="modal-detail-row"><span>Operación</span><span>${p.operacion}</span></div>` : ''}
+    ${p.zona ? `<div class="modal-detail-row"><span>Zona</span><span>${p.zona}</span></div>` : ''}
+    ${p.metros ? `<div class="modal-detail-row"><span>Superficie</span><span>${p.metros} m²</span></div>` : ''}
+  `;
+  
+  // WA
+  const msg = encodeURIComponent(`Hola, me interesa la propiedad: ${p.titulo} (${p.precio || 'consultar precio'})`);
+  document.getElementById('modal-wa').href = `https://wa.me/5492494528888?text=${msg}`;
+  
+  // Gallery
+  updateGallery();
+  
+  // Thumbs
+  document.getElementById('modal-thumbs').innerHTML = currentImgs.map((src, i) => `
+    <div class="modal-thumb ${i===0?'active':''}" onclick="setImg(${i})">
+      <img src="${src}" loading="lazy">
+    </div>
+  `).join('');
+  
+  if (!currentImgs.length) {
+    document.getElementById('modal-gallery').style.display = 'none';
+    document.getElementById('modal-thumbs').style.display = 'none';
+  } else {
+    document.getElementById('modal-gallery').style.display = 'block';
+    document.getElementById('modal-thumbs').style.display = currentImgs.length > 1 ? 'flex' : 'none';
+  }
+  
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function updateGallery() {
+  if (!currentImgs.length) return;
+  document.getElementById('modal-main-img').src = currentImgs[currentImgIdx];
+  document.getElementById('gallery-counter').textContent = `${currentImgIdx+1} / ${currentImgs.length}`;
+  document.querySelectorAll('.modal-thumb').forEach((t,i) => t.classList.toggle('active', i===currentImgIdx));
+}
+
+function setImg(i) { currentImgIdx = i; updateGallery(); }
+function nextImg() { currentImgIdx = (currentImgIdx+1) % currentImgs.length; updateGallery(); }
+function prevImg() { currentImgIdx = (currentImgIdx-1+currentImgs.length) % currentImgs.length; updateGallery(); }
+
+// Init
+loadProps();
+</script>
+</body>
+</html>

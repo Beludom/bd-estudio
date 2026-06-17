@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Admin — BD Estudio Inmobiliario</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: #F7F4EE; color: #1A1815; }
+  
+  /* Login */
+  #login-screen { position: fixed; inset: 0; background: #1B3A2D; display: flex; align-items: center; justify-content: center; z-index: 1000; }
+  .login-box { background: white; padding: 48px; border-radius: 4px; width: 360px; text-align: center; }
+  .login-box h1 { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 300; color: #1B3A2D; margin-bottom: 8px; }
+  .login-box p { font-size: 13px; color: #6E6560; margin-bottom: 28px; }
+  .login-box input { width: 100%; padding: 12px 16px; border: 1px solid #E5DDD0; border-radius: 2px; font-size: 14px; margin-bottom: 12px; outline: none; }
+  .login-box input:focus { border-color: #1B3A2D; }
+  .btn-green { width: 100%; padding: 13px; background: #1B3A2D; color: white; border: none; border-radius: 2px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+  .btn-green:hover { background: #24503D; }
+
+  /* Layout */
+  header { background: #1B3A2D; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  header h1 { font-family: 'Cormorant Garamond', serif; font-size: 22px; font-weight: 300; color: white; }
+  header span { font-size: 11px; color: rgba(255,255,255,.5); letter-spacing: 2px; text-transform: uppercase; }
+  
+  .container { max-width: 1200px; margin: 0 auto; padding: 32px; }
+  
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 28px; background: white; padding: 6px; border-radius: 3px; display: inline-flex; }
+  .tab { padding: 10px 20px; border-radius: 2px; cursor: pointer; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; color: #6E6560; transition: all .2s; border: none; background: none; }
+  .tab.active { background: #1B3A2D; color: white; }
+
+  /* Stats */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat { background: white; padding: 20px 24px; border-radius: 3px; border-left: 3px solid #1B3A2D; }
+  .stat-num { font-family: 'Cormorant Garamond', serif; font-size: 36px; font-weight: 300; color: #1B3A2D; }
+  .stat-label { font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #6E6560; margin-top: 4px; }
+
+  /* Properties grid */
+  .prop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .prop-card { background: white; border-radius: 3px; overflow: hidden; box-shadow: 0 1px 8px rgba(0,0,0,.06); }
+  .prop-card-img { height: 160px; background: #E5DDD0; position: relative; overflow: hidden; }
+  .prop-card-img img { width: 100%; height: 100%; object-fit: cover; }
+  .prop-card-body { padding: 16px; }
+  .prop-card-title { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 400; margin-bottom: 4px; }
+  .prop-card-meta { font-size: 12px; color: #6E6560; margin-bottom: 12px; }
+  .prop-card-price { font-size: 15px; font-weight: 500; color: #1B3A2D; margin-bottom: 12px; }
+  .prop-card-actions { display: flex; gap: 8px; }
+  .btn-edit { flex: 1; padding: 8px; background: #F7F4EE; border: 1px solid #E5DDD0; border-radius: 2px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: #1A1815; }
+  .btn-edit:hover { border-color: #1B3A2D; }
+  .btn-del { padding: 8px 12px; background: #FEF2F2; border: 1px solid #FCA5A5; border-radius: 2px; font-size: 11px; cursor: pointer; color: #DC2626; }
+  .btn-del:hover { background: #FEE2E2; }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 1px; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; margin-right: 4px; }
+  .badge-venta { background: #1B3A2D; color: white; }
+  .badge-alquiler { background: #2A5040; color: white; }
+  .badge-lote { background: #4B5563; color: white; }
+
+  /* Form */
+  .form-panel { background: white; border-radius: 3px; padding: 36px; box-shadow: 0 1px 8px rgba(0,0,0,.06); }
+  .form-panel h2 { font-family: 'Cormorant Garamond', serif; font-size: 28px; font-weight: 300; margin-bottom: 28px; color: #1A1815; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+  .form-group label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #6E6560; }
+  .form-group input, .form-group select, .form-group textarea { padding: 12px 14px; border: 1px solid #E5DDD0; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: #1A1815; background: #F7F4EE; outline: none; transition: border-color .2s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: #1B3A2D; background: white; }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+  
+  /* Fotos */
+  .fotos-area { border: 2px dashed #E5DDD0; border-radius: 3px; padding: 24px; text-align: center; cursor: pointer; transition: border-color .2s; background: #F7F4EE; }
+  .fotos-area:hover { border-color: #1B3A2D; }
+  .fotos-area p { font-size: 13px; color: #6E6560; margin-top: 8px; }
+  .fotos-preview { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .foto-thumb { width: 80px; height: 80px; border-radius: 2px; overflow: hidden; position: relative; }
+  .foto-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .foto-thumb button { position: absolute; top: 2px; right: 2px; background: rgba(220,38,38,.8); color: white; border: none; border-radius: 50%; width: 18px; height: 18px; cursor: pointer; font-size: 10px; display: flex; align-items: center; justify-content: center; }
+  
+  .form-actions { display: flex; gap: 12px; margin-top: 24px; }
+  .btn-submit { flex: 1; padding: 14px; background: #1B3A2D; color: white; border: none; border-radius: 2px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
+  .btn-submit:hover { background: #24503D; }
+  .btn-cancel { padding: 14px 24px; background: white; border: 1px solid #E5DDD0; border-radius: 2px; font-size: 11px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; color: #6E6560; }
+  
+  /* Empty state */
+  .empty { text-align: center; padding: 60px 20px; color: #6E6560; }
+  .empty h3 { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 300; margin-bottom: 8px; color: #1A1815; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 24px; right: 24px; background: #1B3A2D; color: white; padding: 14px 20px; border-radius: 3px; font-size: 13px; z-index: 9999; opacity: 0; transition: opacity .3s; }
+  .toast.show { opacity: 1; }
+
+  /* Loading */
+  .loading { text-align: center; padding: 40px; color: #6E6560; font-size: 13px; }
+  
+  @media (max-width: 768px) {
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .prop-grid { grid-template-columns: 1fr; }
+    .form-row, .form-row-3 { grid-template-columns: 1fr; }
+    .container { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>BD Estudio</h1>
+    <p>Panel de administración</p>
+    <input type="password" id="login-pass" placeholder="Contraseña" onkeypress="if(event.key==='Enter')doLogin()">
+    <button class="btn-green" onclick="doLogin()">Ingresar</button>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <h1>BD Estudio — Admin</h1>
+  <span>Panel de propiedades</span>
+</header>
+
+<!-- MAIN -->
+<div class="container">
+  
+  <!-- TABS -->
+  <div style="margin-bottom:24px;">
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('lista')">Propiedades</button>
+      <button class="tab" onclick="showTab('nueva')">+ Nueva propiedad</button>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-num" id="stat-total">—</div><div class="stat-label">Total</div></div>
+    <div class="stat"><div class="stat-num" id="stat-venta">—</div><div class="stat-label">En venta</div></div>
+    <div class="stat"><div class="stat-num" id="stat-alquiler">—</div><div class="stat-label">En alquiler</div></div>
+    <div class="stat"><div class="stat-num" id="stat-lotes">—</div><div class="stat-label">Lotes / Campos</div></div>
+  </div>
+
+  <!-- LISTA -->
+  <div id="tab-lista">
+    <div id="props-container" class="loading">Cargando propiedades...</div>
+  </div>
+
+  <!-- FORMULARIO NUEVA/EDITAR -->
+  <div id="tab-nueva" style="display:none;">
+    <div class="form-panel">
+      <h2 id="form-title">Nueva propiedad</h2>
+      <input type="hidden" id="edit-id">
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label>Título *</label>
+          <input type="text" id="f-titulo" placeholder="Ej: Casa en Barrio Calvario">
+        </div>
+        <div class="form-group">
+          <label>Dirección / Zona</label>
+          <input type="text" id="f-direccion" placeholder="Ej: Payró 1053, Calvario">
+        </div>
+      </div>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Operación *</label>
+          <select id="f-operacion">
+            <option value="">Seleccioná</option>
+            <option value="venta">Venta</option>
+            <option value="alquiler">Alquiler</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tipo *</label>
+          <select id="f-tipo">
+            <option value="">Seleccioná</option>
+            <option value="casa">Casa</option>
+            <option value="departamento">Departamento</option>
+            <option value="lote">Lote</option>
+            <option value="campo">Campo</option>
+            <option value="galpon">Galpón / Local</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Precio</label>
+          <input type="text" id="f-precio" placeholder="Ej: USD 270.000">
+        </div>
+      </div>
+
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Metros cubiertos</label>
+          <input type="number" id="f-metros" placeholder="225">
+        </div>
+        <div class="form-group">
+          <label>Ambientes</label>
+          <input type="number" id="f-ambientes" placeholder="7">
+        </div>
+        <div class="form-group">
+          <label>Dormitorios</label>
+          <input type="number" id="f-dormitorios" placeholder="3">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Baños</label>
+          <input type="number" id="f-banios" placeholder="4">
+        </div>
+        <div class="form-group">
+          <label>Zona</label>
+          <input type="text" id="f-zona" placeholder="Ej: Calvario">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea id="f-descripcion" placeholder="Descripción completa de la propiedad..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Extras (separados por coma)</label>
+        <input type="text" id="f-extras" placeholder="Ej: Piscina, Quincho, Cochera, Apto crédito">
+      </div>
+
+      <!-- Fotos -->
+      <div class="form-group">
+        <label>Fotos</label>
+        <div class="fotos-area" onclick="document.getElementById('foto-input').click()">
+          <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6E6560" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+          <p>Tocá para agregar fotos</p>
+          <input type="file" id="foto-input" accept="image/*" multiple style="display:none" onchange="handleFotos(this)">
+        </div>
+        <div class="fotos-preview" id="fotos-preview"></div>
+        <div id="fotos-urls" style="display:none;"></div>
+      </div>
+
+      <div class="form-actions">
+        <button class="btn-cancel" onclick="showTab('lista')">Cancelar</button>
+        <button class="btn-submit" onclick="guardarPropiedad()">Guardar propiedad</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://fijwsrillwlfxulskngt.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZpandzcmlsbHdsZnh1bHNrbmd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2OTA3MjAsImV4cCI6MjA5NzI2NjcyMH0.g2M9H58NitwtYK8Cme_1pgFVbx3EZSLmtQAVvXk2EY8';
+const ADMIN_PASS = 'bd2024admin';
+
+let fotosBase64 = [];
+let editingId = null;
+
+// LOGIN
+function doLogin() {
+  const pass = document.getElementById('login-pass').value;
+  if (pass === ADMIN_PASS) {
+    document.getElementById('login-screen').style.display = 'none';
+    loadProps();
+  } else {
+    alert('Contraseña incorrecta');
+  }
+}
+
+// API helper
+async function supabase(method, path, body) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=representation' : 'return=representation'
+    },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : [];
+}
+
+// TABS
+function showTab(tab) {
+  document.getElementById('tab-lista').style.display = tab === 'lista' ? 'block' : 'none';
+  document.getElementById('tab-nueva').style.display = tab === 'nueva' ? 'block' : 'none';
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', (tab === 'lista' && i === 0) || (tab === 'nueva' && i === 1));
+  });
+  if (tab === 'nueva' && !editingId) resetForm();
+}
+
+// LOAD
+async function loadProps() {
+  try {
+    const props = await supabase('GET', 'propiedades?order=created_at.desc&select=*');
+    updateStats(props);
+    renderProps(props);
+  } catch(e) {
+    document.getElementById('props-container').innerHTML = `<div class="empty"><h3>Error al cargar</h3><p>${e.message}</p></div>`;
+  }
+}
+
+function updateStats(props) {
+  document.getElementById('stat-total').textContent = props.length;
+  document.getElementById('stat-venta').textContent = props.filter(p => p.operacion === 'venta').length;
+  document.getElementById('stat-alquiler').textContent = props.filter(p => p.operacion === 'alquiler').length;
+  document.getElementById('stat-lotes').textContent = props.filter(p => p.tipo === 'lote' || p.tipo === 'campo').length;
+}
+
+function renderProps(props) {
+  const c = document.getElementById('props-container');
+  if (!props.length) {
+    c.innerHTML = `<div class="empty"><h3>No hay propiedades cargadas</h3><p>Tocá "+ Nueva propiedad" para empezar</p></div>`;
+    return;
+  }
+  c.className = 'prop-grid';
+  c.innerHTML = props.map(p => `
+    <div class="prop-card">
+      <div class="prop-card-img">
+        ${p.fotos && p.fotos.length ? `<img src="${p.fotos[0]}" alt="${p.titulo}">` : '<div style="height:100%;background:#E5DDD0;display:flex;align-items:center;justify-content:center;color:#6E6560;font-size:12px;">Sin foto</div>'}
+      </div>
+      <div class="prop-card-body">
+        <div style="margin-bottom:8px;">
+          <span class="badge badge-${p.operacion || 'venta'}">${p.operacion || 'venta'}</span>
+          <span class="badge badge-lote">${p.tipo || ''}</span>
+        </div>
+        <div class="prop-card-title">${p.titulo}</div>
+        <div class="prop-card-meta">📍 ${p.direccion || p.zona || '—'}</div>
+        <div class="prop-card-price">${p.precio || 'Consultar'}</div>
+        <div class="prop-card-actions">
+          <button class="btn-edit" onclick="editProp('${p.id}')">Editar</button>
+          <button class="btn-del" onclick="deleteProp('${p.id}')">✕</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// FOTOS
+function handleFotos(input) {
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      fotosBase64.push(e.target.result);
+      renderFotosPrev();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderFotosPrev() {
+  const prev = document.getElementById('fotos-preview');
+  prev.innerHTML = fotosBase64.map((src, i) => `
+    <div class="foto-thumb">
+      <img src="${src}">
+      <button onclick="removeFoto(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function removeFoto(i) {
+  fotosBase64.splice(i, 1);
+  renderFotosPrev();
+}
+
+// SAVE
+async function guardarPropiedad() {
+  const titulo = document.getElementById('f-titulo').value.trim();
+  const operacion = document.getElementById('f-operacion').value;
+  const tipo = document.getElementById('f-tipo').value;
+  
+  if (!titulo || !operacion || !tipo) {
+    showToast('Completá título, operación y tipo');
+    return;
+  }
+
+  const extrasRaw = document.getElementById('f-extras').value;
+  const extras = extrasRaw ? extrasRaw.split(',').map(e => e.trim()).filter(Boolean) : [];
+
+  const data = {
+    titulo,
+    operacion,
+    tipo,
+    precio: document.getElementById('f-precio').value,
+    zona: document.getElementById('f-zona').value,
+    direccion: document.getElementById('f-direccion').value,
+    descripcion: document.getElementById('f-descripcion').value,
+    metros: parseFloat(document.getElementById('f-metros').value) || null,
+    ambientes: parseInt(document.getElementById('f-ambientes').value) || null,
+    dormitorios: parseInt(document.getElementById('f-dormitorios').value) || null,
+    banios: parseInt(document.getElementById('f-banios').value) || null,
+    extras,
+    fotos: fotosBase64,
+    activo: true
+  };
+
+  try {
+    if (editingId) {
+      await supabase('PATCH', `propiedades?id=eq.${editingId}`, data);
+      showToast('✓ Propiedad actualizada');
+    } else {
+      await supabase('POST', 'propiedades', data);
+      showToast('✓ Propiedad guardada');
+    }
+    editingId = null;
+    resetForm();
+    showTab('lista');
+    loadProps();
+  } catch(e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+// EDIT
+async function editProp(id) {
+  try {
+    const props = await supabase('GET', `propiedades?id=eq.${id}&select=*`);
+    const p = props[0];
+    editingId = id;
+    
+    document.getElementById('f-titulo').value = p.titulo || '';
+    document.getElementById('f-operacion').value = p.operacion || '';
+    document.getElementById('f-tipo').value = p.tipo || '';
+    document.getElementById('f-precio').value = p.precio || '';
+    document.getElementById('f-zona').value = p.zona || '';
+    document.getElementById('f-direccion').value = p.direccion || '';
+    document.getElementById('f-descripcion').value = p.descripcion || '';
+    document.getElementById('f-metros').value = p.metros || '';
+    document.getElementById('f-ambientes').value = p.ambientes || '';
+    document.getElementById('f-dormitorios').value = p.dormitorios || '';
+    document.getElementById('f-banios').value = p.banios || '';
+    document.getElementById('f-extras').value = (p.extras || []).join(', ');
+    
+    fotosBase64 = p.fotos || [];
+    renderFotosPrev();
+    
+    document.getElementById('form-title').textContent = 'Editar propiedad';
+    showTab('nueva');
+  } catch(e) {
+    showToast('Error al cargar: ' + e.message);
+  }
+}
+
+// DELETE
+async function deleteProp(id) {
+  if (!confirm('¿Eliminar esta propiedad?')) return;
+  try {
+    await supabase('DELETE', `propiedades?id=eq.${id}`);
+    showToast('Propiedad eliminada');
+    loadProps();
+  } catch(e) {
+    showToast('Error: ' + e.message);
+  }
+}
+
+// RESET
+function resetForm() {
+  ['f-titulo','f-operacion','f-tipo','f-precio','f-zona','f-direccion','f-descripcion','f-metros','f-ambientes','f-dormitorios','f-banios','f-extras'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  fotosBase64 = [];
+  renderFotosPrev();
+  editingId = null;
+  document.getElementById('form-title').textContent = 'Nueva propiedad';
+}
+
+// TOAST
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
